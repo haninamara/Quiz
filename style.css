@@ -1,0 +1,198 @@
+/* 🎨 Variables et Reset */
+:root {
+    --primary-color: #2c3e50; /* Bleu foncé */
+    --secondary-color: #3498db; /* Bleu vif */
+    --accent-color: #e67e22; /* Orange pour le CTA */
+    --success-color: #2ecc71; /* Vert pour correct */
+    --error-color: #e74c3c; /* Rouge pour faux */
+    --bg-color: #ecf0f1; /* Gris clair */
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 🧠 Style global */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 🪄 Conteneur principal */
+.quiz-container {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+h2 {
+    color: var(--secondary-color);
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+p {
+    color: var(--primary-color);
+    line-height: 1.6;
+}
+
+/* 🧩 Boutons (généraux) */
+button {
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+    font-weight: 600;
+    border: none;
+    margin: 5px 0;
+    width: 100%;
+}
+
+/* 🚀 Boutons d'action (Start, Next, Restart) */
+.cta-btn {
+    background-color: var(--accent-color);
+    color: var(--white);
+    margin-top: 20px;
+}
+
+.cta-btn:hover:not(:disabled) {
+    background-color: #d35400; /* Orange plus foncé */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4);
+}
+
+.cta-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 🧱 Grille des boutons de réponse */
+.btn-grid {
+    display: grid;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-answer {
+    background-color: var(--white);
+    color: var(--primary-color);
+    border: 2px solid var(--secondary-color);
+    width: 100%;
+    text-align: left;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.btn-answer:hover:not(.disabled) {
+    background-color: var(--secondary-color);
+    color: var(--white);
+}
+
+/* ✅ États de réponse */
+.correct {
+    background-color: var(--success-color) !important;
+    color: var(--white) !important;
+    border-color: var(--success-color) !important;
+    animation: pulse-correct 0.5s ease;
+}
+
+.wrong {
+    background-color: var(--error-color) !important;
+    color: var(--white) !important;
+    border-color: var(--error-color) !important;
+    animation: shake-wrong 0.5s ease;
+}
+/* 🔄 Gestion d’affichage des écrans */
+.hidden {
+    display: none !important;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* 📱 Responsive */
+@media (max-width: 480px) {
+    .quiz-container {
+        padding: 25px;
+    }
+    .btn-answer {
+        font-size: 0.9rem;
+    }
+}
+
+/* === Feedback visuel central === */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.6);
+  font-size: 6rem;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.feedback-overlay.show {
+  opacity: 1;
+  animation: slapAnimation 1.5s ease forwards;
+}
+
+.feedback-overlay.correct {
+  color: var(--success-color);
+}
+
+.feedback-overlay.wrong {
+  color: var(--error-color);
+}
+
+/* Animation "slap" : main qui apparaît rapidement et rebondit */
+@keyframes slapAnimation {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.4) rotate(-10deg);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1) rotate(10deg);
+  }
+  80% {
+    transform: scale(1.1) rotate(0deg);
+  }
+  100% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+}
+

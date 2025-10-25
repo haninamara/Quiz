@@ -1,49 +1,77 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz Interactif Fantastique</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-</head>
-<body>
-  <div class="quiz-container">
-    <h1>🧠 Quiz du Développeur Web</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Interactif Multi-niveaux</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="quiz-container">
+      <h1>🧠 Quiz du Développeur Web</h1>
 
-   <!-- introoo -->
-<div id="intro-screen" class="screen active">
-    <p>Testez vos connaissances en HTML, CSS et JavaScript. Êtes-vous prêt pour le défi ?</p>
-    <button id="start-btn" class="cta-btn">Commencer le Quiz</button>
-</div>
+      <!-- Écran d'accueil -->
+      <div id="intro-screen" class="screen active">
+        <p>
+          Testez vos connaissances en HTML, CSS et JavaScript.<br />Choisissez
+          votre niveau et relevez le défi !
+        </p>
 
-<!--  quiz -->
-<div id="quiz-screen" class="screen">
-    <h2 id="question-text">Question en cours...</h2>
+        <div class="level-grid">
+          <div class="level-card beginner" data-level="beginner">
+            <div class="level-icon">🌱</div>
+            <div class="level-title">Débutant</div>
+            <div class="level-desc">8 questions basiques</div>
+          </div>
 
-    <div id="answer-buttons" class="btn-grid"></div>
+          <div class="level-card intermediate" data-level="intermediate">
+            <div class="level-icon">⚡</div>
+            <div class="level-title">Intermédiaire</div>
+            <div class="level-desc">8 questions avancées</div>
+          </div>
 
-    <div id="feedback" class="feedback-message"></div>
+          <div class="level-card advanced" data-level="advanced">
+            <div class="level-icon">🔥</div>
+            <div class="level-title">Expert</div>
+            <div class="level-desc">8 questions complexes</div>
+          </div>
+        </div>
+      </div>
 
-    <button id="next-btn" class="cta-btn hidden" disabled>Question Suivante &rarr;</button>
-</div>
+      <!-- Écran de quiz -->
+      <div id="quiz-screen" class="screen">
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <div id="progress-text" class="progress-text">Question 1 / 8</div>
 
-<!-- res -->
-<div id="results-screen" class="screen">
-    <h2>🎉 Quiz Terminé !</h2>
-    <p>Votre score final est de : 
-        <span id="final-score">0</span> / 
-        <span id="total-questions">0</span>
-    </p>
-    <p id="result-message"></p>
-    <button id="restart-btn" class="cta-btn">Recommencer</button>
-</div>
+        <h2 id="question-text">Question en cours...</h2>
+        <div id="answer-buttons" class="btn-grid"></div>
+        <button id="next-btn" class="cta-btn hidden" disabled>
+          Question Suivante &rarr;
+        </button>
+      </div>
 
- <!-- Effet visuel de feedback -->
-<div id="feedback-overlay" class="feedback-overlay hidden"></div>
+      <!-- Écran de résultats -->
+      <div id="results-screen" class="screen">
+        <h2>🎉 Quiz Terminé !</h2>
+        <div class="score-badge">
+          <span id="final-score">0</span> / <span id="total-questions">0</span>
+        </div>
+        <p id="result-message"></p>
+        <button id="restart-btn" class="cta-btn">
+          Choisir un nouveau niveau
+        </button>
+      </div>
 
+      <!-- Feedback overlay -->
+      <div id="feedback-overlay" class="feedback-overlay hidden"></div>
+    </div>
 
-
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>

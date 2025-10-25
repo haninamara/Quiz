@@ -1,170 +1,275 @@
-    // 1. Données du Quiz
-    const quizQuestions = [
-      {
-        question: "Quelle est la fonction principale du sélecteur '::before' en CSS ?",
-        answers: [
-          "Ajouter une classe à un élément",
-          "Insérer du contenu avant un élément",
-          "Déplacer un élément au début de son conteneur",
-        ],
-        correctAnswer: "Insérer du contenu avant un élément",
-      },
-      {
-        question: "Quel mot-clé JavaScript est utilisé pour déclarer une variable dont la valeur ne changera pas ?",
-        answers: ["var", "let", "const"],
-        correctAnswer: "const",
-      },
-      {
-        question: "Quel attribut HTML rend un champ de formulaire obligatoire ?",
-        answers: ["must", "required", "mandatory"],
-        correctAnswer: "required",
-      },
-      {
-        question: "En CSS Flexbox, quelle propriété centre un élément sur l'axe secondaire (cross axis) ?",
-        answers: ["justify-content", "align-items", "flex-direction"],
-        correctAnswer: "align-items",
-      },
-      {
-    question: "Quelle balise HTML est utilisée pour créer un lien hypertexte ?",
-    answers: ["<link>", "<a>", "<href>"],
-    correctAnswer: "<a>",
-  },
-  {
-    question: "Quel attribut CSS modifie la couleur du texte ?",
-    answers: ["color", "background-color", "font-style"],
-    correctAnswer: "color",
-  },
-  {
-    question: "Quel événement JavaScript est déclenché lorsqu'un utilisateur clique sur un élément ?",
-    answers: ["onclick", "onhover", "onload"],
-    correctAnswer: "onclick",
-  },
-  {
-    question: "En CSS, quelle propriété contrôle l'espacement entre les lignes de texte ?",
-    answers: ["line-height", "letter-spacing", "text-indent"],
-    correctAnswer: "line-height",
-  },
-    ];
+   // Questions par niveau
+    const quizData = {
+      beginner: [
+        {
+          question: "Quelle balise HTML est utilisée pour créer un lien hypertexte ?",
+          answers: ["<link>", "<a>", "<href>"],
+          correctAnswer: "<a>"
+        },
+        {
+          question: "Quel attribut CSS modifie la couleur du texte ?",
+          answers: ["color", "background-color", "font-style"],
+          correctAnswer: "color"
+        },
+        {
+          question: "Quel événement JavaScript est déclenché lors d'un clic ?",
+          answers: ["onclick", "onhover", "onload"],
+          correctAnswer: "onclick"
+        },
+        {
+          question: "Quelle balise HTML crée un paragraphe ?",
+          answers: ["<p>", "<paragraph>", "<text>"],
+          correctAnswer: "<p>"
+        },
+        {
+          question: "Comment inclure un fichier CSS externe en HTML ?",
+          answers: ["<style src='style.css'>", "<link rel='stylesheet' href='style.css'>", "<css>style.css</css>"],
+          correctAnswer: "<link rel='stylesheet' href='style.css'>"
+        },
+        {
+          question: "Quelle propriété CSS contrôle la taille du texte ?",
+          answers: ["font-size", "text-size", "size"],
+          correctAnswer: "font-size"
+        },
+        {
+          question: "Comment déclarer une variable en JavaScript moderne ?",
+          answers: ["variable x = 5", "let x = 5", "var x := 5"],
+          correctAnswer: "let x = 5"
+        },
+        {
+          question: "Quelle balise HTML crée une liste non ordonnée ?",
+          answers: ["<ul>", "<ol>", "<list>"],
+          correctAnswer: "<ul>"
+        }
+      ],
+      intermediate: [
+        {
+          question: "Quelle est la fonction principale du sélecteur '::before' en CSS ?",
+          answers: ["Ajouter une classe à un élément", "Insérer du contenu avant un élément", "Déplacer un élément au début"],
+          correctAnswer: "Insérer du contenu avant un élément"
+        },
+        {
+          question: "Quel mot-clé déclare une variable constante en JavaScript ?",
+          answers: ["var", "let", "const"],
+          correctAnswer: "const"
+        },
+        {
+          question: "Quel attribut HTML rend un champ obligatoire ?",
+          answers: ["must", "required", "mandatory"],
+          correctAnswer: "required"
+        },
+        {
+          question: "En Flexbox, quelle propriété centre sur l'axe secondaire ?",
+          answers: ["justify-content", "align-items", "flex-direction"],
+          correctAnswer: "align-items"
+        },
+        {
+          question: "Quelle méthode JavaScript ajoute un élément à la fin d'un tableau ?",
+          answers: ["push()", "add()", "append()"],
+          correctAnswer: "push()"
+        },
+        {
+          question: "Quelle propriété CSS crée un dégradé linéaire ?",
+          answers: ["background-gradient", "linear-gradient()", "gradient"],
+          correctAnswer: "linear-gradient()"
+        },
+        {
+          question: "Comment sélectionner un élément par ID en JavaScript ?",
+          answers: ["document.querySelector('#id')", "document.getElement('id')", "document.selectId('id')"],
+          correctAnswer: "document.querySelector('#id')"
+        },
+        {
+          question: "Quelle propriété CSS contrôle l'espacement entre les lignes ?",
+          answers: ["line-height", "letter-spacing", "text-indent"],
+          correctAnswer: "line-height"
+        }
+      ],
+      advanced: [
+        {
+          question: "Quelle est la différence principale entre '==' et '===' en JavaScript ?",
+          answers: ["'===' vérifie le type et la valeur", "'==' est plus rapide", "Aucune différence"],
+          correctAnswer: "'===' vérifie le type et la valeur"
+        },
+        {
+          question: "Quel est le rôle de 'event.preventDefault()' ?",
+          answers: ["Annule le comportement par défaut", "Arrête la propagation", "Supprime l'événement"],
+          correctAnswer: "Annule le comportement par défaut"
+        },
+        {
+          question: "En CSS Grid, que fait 'grid-template-areas' ?",
+          answers: ["Définit des zones nommées", "Crée des colonnes", "Définit l'espacement"],
+          correctAnswer: "Définit des zones nommées"
+        },
+        {
+          question: "Qu'est-ce qu'une closure en JavaScript ?",
+          answers: ["Une fonction qui accède à son scope externe", "Une boucle fermée", "Un objet immuable"],
+          correctAnswer: "Une fonction qui accède à son scope externe"
+        },
+        {
+          question: "Quelle propriété CSS crée un contexte de empilement (stacking context) ?",
+          answers: ["z-index avec position", "stack-order", "layer"],
+          correctAnswer: "z-index avec position"
+        },
+        {
+          question: "Que retourne 'Promise.all()' si une promesse échoue ?",
+          answers: ["Rejette immédiatement", "Attend toutes les promesses", "Retourne un tableau vide"],
+          correctAnswer: "Rejette immédiatement"
+        },
+        {
+          question: "Quel sélecteur CSS cible le premier enfant d'un type spécifique ?",
+          answers: [":first-of-type", ":first-child", ":nth-child(1)"],
+          correctAnswer: ":first-of-type"
+        },
+        {
+          question: "Que signifie 'hoisting' en JavaScript ?",
+          answers: ["Les déclarations sont remontées en haut du scope", "L'optimisation du code", "La compression des fichiers"],
+          correctAnswer: "Les déclarations sont remontées en haut du scope"
+        }
+      ]
+    };
 
-    const introScreen = document.getElementById("intro-screen");
-    const quizScreen = document.getElementById("quiz-screen");
-    const resultsScreen = document.getElementById("results-screen");
-    const startBtn = document.getElementById("start-btn");
-    const nextBtn = document.getElementById("next-btn");
-    const restartBtn = document.getElementById("restart-btn");
-    const questionText = document.getElementById("question-text");
-    const answerButtonsContainer = document.getElementById("answer-buttons");
-    const feedback = document.getElementById("feedback");
-    const finalScore = document.getElementById("final-score");
-    const totalQuestionsSpan = document.getElementById("total-questions");
-    const resultMessage = document.getElementById("result-message");
-
-    // 3. Variables d'état
+    // Variables globales
+    let currentLevel = '';
+    let currentQuestions = [];
     let currentQuestionIndex = 0;
     let score = 0;
     let answerSelected = false;
 
-    // 4. Fonctions principales
+    // Éléments DOM
+    const introScreen = document.getElementById('intro-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const questionText = document.getElementById('question-text');
+    const answerButtonsContainer = document.getElementById('answer-buttons');
+    const nextBtn = document.getElementById('next-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const finalScore = document.getElementById('final-score');
+    const totalQuestionsSpan = document.getElementById('total-questions');
+    const resultMessage = document.getElementById('result-message');
+    const feedbackOverlay = document.getElementById('feedback-overlay');
+
+    // Sélection du niveau
+    document.querySelectorAll('.level-card').forEach(card => {
+      card.addEventListener('click', () => {
+        currentLevel = card.dataset.level;
+        startQuiz();
+      });
+    });
+
+    // Démarrer le quiz
     function startQuiz() {
+      currentQuestions = quizData[currentLevel];
       currentQuestionIndex = 0;
       score = 0;
       answerSelected = false;
 
-      introScreen.classList.remove("active");
-      resultsScreen.classList.remove("active");
-      quizScreen.classList.add("active");
+      introScreen.classList.remove('active');
+      resultsScreen.classList.remove('active');
+      quizScreen.classList.add('active');
 
-      totalQuestionsSpan.textContent = quizQuestions.length;
+      totalQuestionsSpan.textContent = currentQuestions.length;
       displayQuestion();
     }
 
+    // Afficher une question
     function displayQuestion() {
-      if (currentQuestionIndex >= quizQuestions.length) {
+      if (currentQuestionIndex >= currentQuestions.length) {
         showResults();
         return;
       }
 
-      const currentQuestion = quizQuestions[currentQuestionIndex];
+      const currentQuestion = currentQuestions[currentQuestionIndex];
       questionText.textContent = currentQuestion.question;
-      answerButtonsContainer.innerHTML = "";
-      feedback.textContent = "";
-      nextBtn.classList.add("hidden");
+      answerButtonsContainer.innerHTML = '';
+      nextBtn.classList.add('hidden');
       nextBtn.disabled = true;
       answerSelected = false;
 
-      currentQuestion.answers.forEach((answer) => {
-        const button = document.createElement("button");
+      // Mise à jour de la progression
+      const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+      progressBar.style.width = progress + '%';
+      progressText.textContent = `Question ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+
+      // Créer les boutons de réponse
+      currentQuestion.answers.forEach(answer => {
+        const button = document.createElement('button');
         button.textContent = answer;
-        button.classList.add("btn-answer");
-        button.addEventListener("click", () => checkAnswer(button, currentQuestion.correctAnswer));
+        button.classList.add('btn-answer');
+        button.addEventListener('click', () => checkAnswer(button, currentQuestion.correctAnswer));
         answerButtonsContainer.appendChild(button);
       });
     }
 
-    function showFeedbackOverlay(symbol, type) {
-  const feedbackOverlay = document.getElementById("feedback-overlay");
-  feedbackOverlay.textContent = symbol;
-  feedbackOverlay.classList.remove("hidden", "correct", "wrong", "show");
-  feedbackOverlay.classList.add(type, "show");
+    // Vérifier la réponse
+    function checkAnswer(selectedButton, correctAnswer) {
+      if (answerSelected) return;
+      answerSelected = true;
 
-  // Hide overlay after 1 second
-  setTimeout(() => {
-    feedbackOverlay.classList.remove("show", type);
-    feedbackOverlay.classList.add("hidden");
-  }, 1000);
-}
+      const isCorrect = selectedButton.textContent === correctAnswer;
 
+      if (isCorrect) {
+        score++;
+        selectedButton.classList.add('correct');
+        showFeedbackOverlay('👍', 'correct');
+      } else {
+        selectedButton.classList.add('wrong');
+        showFeedbackOverlay('❌', 'wrong');
+      }
 
-function checkAnswer(selectedButton, correctAnswer) {
-  if (answerSelected) return;
-  answerSelected = true;
+      // Désactiver tous les boutons et afficher la bonne réponse
+      Array.from(answerButtonsContainer.children).forEach(button => {
+        button.disabled = true;
+        if (button.textContent === correctAnswer && !isCorrect) {
+          button.classList.add('correct');
+        }
+      });
 
-  const isCorrect = selectedButton.textContent === correctAnswer;
-  const feedbackOverlay = document.getElementById("feedback-overlay");
-
-  if (isCorrect) {
-    score++;
-    selectedButton.classList.add("correct");
-    showFeedbackOverlay("👍", "correct"); 
-  } else {
-    selectedButton.classList.add("wrong");
-    showFeedbackOverlay("❌", "wrong"); 
-  }
-
-  Array.from(answerButtonsContainer.children).forEach((button) => {
-    button.disabled = true;
-    if (button.textContent === correctAnswer && !isCorrect) {
-      button.classList.add("correct");
+      nextBtn.classList.remove('hidden');
+      nextBtn.disabled = false;
     }
-  });
 
-  nextBtn.classList.remove("hidden");
-  nextBtn.disabled = false;
-}
+    // Afficher le feedback visuel
+    function showFeedbackOverlay(symbol, type) {
+      feedbackOverlay.textContent = symbol;
+      feedbackOverlay.classList.remove('hidden', 'correct', 'wrong', 'show');
+      feedbackOverlay.classList.add(type, 'show');
 
+      setTimeout(() => {
+        feedbackOverlay.classList.remove('show', type);
+        feedbackOverlay.classList.add('hidden');
+      }, 1000);
+    }
+
+    // Question suivante
     function nextQuestion() {
       currentQuestionIndex++;
       displayQuestion();
     }
 
+    // Afficher les résultats
     function showResults() {
-      quizScreen.classList.remove("active");
-      resultsScreen.classList.add("active");
+      quizScreen.classList.remove('active');
+      resultsScreen.classList.add('active');
       finalScore.textContent = score;
 
-      const percentage = (score / quizQuestions.length) * 100;
+      const percentage = (score / currentQuestions.length) * 100;
+      
       if (percentage === 100) {
-        resultMessage.textContent = "🌟 Incroyable ! Vous avez un 100% !";
+        resultMessage.textContent = "🌟 Parfait ! Score impeccable !";
       } else if (percentage >= 75) {
-        resultMessage.textContent = "💪 Excellent ! Vous êtes un pro du web !";
+        resultMessage.textContent = "💪 Excellent travail ! Vous maîtrisez le sujet !";
       } else if (percentage >= 50) {
-        resultMessage.textContent = "👍 Pas mal ! Continuez à pratiquer.";
+        resultMessage.textContent = "👍 Bien joué ! Continuez à pratiquer.";
       } else {
-        resultMessage.textContent = "💡 Beaucoup d'apprentissage en perspective !";
+        resultMessage.textContent = "💡 Bon début ! Revisitez les concepts de base.";
       }
     }
 
-    // 5. Événements
-    startBtn.addEventListener("click", startQuiz);
-    nextBtn.addEventListener("click", nextQuestion);
-    restartBtn.addEventListener("click", startQuiz);
+    // Événements
+    nextBtn.addEventListener('click', nextQuestion);
+    restartBtn.addEventListener('click', () => {
+      resultsScreen.classList.remove('active');
+      introScreen.classList.add('active');
+    });

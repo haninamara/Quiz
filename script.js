@@ -1,4 +1,3 @@
-   // Questions par niveau
     const quizData = {
       beginner: [
         {
@@ -128,14 +127,12 @@
       ]
     };
 
-    // Variables globales
     let currentLevel = '';
     let currentQuestions = [];
     let currentQuestionIndex = 0;
     let score = 0;
     let answerSelected = false;
 
-    // Éléments DOM
     const introScreen = document.getElementById('intro-screen');
     const quizScreen = document.getElementById('quiz-screen');
     const resultsScreen = document.getElementById('results-screen');
@@ -150,7 +147,6 @@
     const resultMessage = document.getElementById('result-message');
     const feedbackOverlay = document.getElementById('feedback-overlay');
 
-    // Sélection du niveau
     document.querySelectorAll('.level-card').forEach(card => {
       card.addEventListener('click', () => {
         currentLevel = card.dataset.level;
@@ -158,7 +154,6 @@
       });
     });
 
-    // Démarrer le quiz
     function startQuiz() {
       currentQuestions = quizData[currentLevel];
       currentQuestionIndex = 0;
@@ -173,7 +168,6 @@
       displayQuestion();
     }
 
-    // Afficher une question
     function displayQuestion() {
       if (currentQuestionIndex >= currentQuestions.length) {
         showResults();
@@ -187,12 +181,10 @@
       nextBtn.disabled = true;
       answerSelected = false;
 
-      // Mise à jour de la progression
       const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
       progressBar.style.width = progress + '%';
       progressText.textContent = `Question ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
 
-      // Créer les boutons de réponse
       currentQuestion.answers.forEach(answer => {
         const button = document.createElement('button');
         button.textContent = answer;
@@ -202,7 +194,25 @@
       });
     }
 
-    // Vérifier la réponse
+    function createConfetti(button) {
+      const rect = button.getBoundingClientRect();
+      const colors = ['#55efc4', '#81ecec', '#74b9ff', '#a29bfe', '#ffeaa7'];
+      
+      for (let i = 0; i < 15; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = (rect.left + rect.width / 2) + 'px';
+        confetti.style.top = rect.top + 'px';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        confetti.style.animationDelay = `${Math.random() * 0.2}s`;
+        confetti.style.animationDuration = `${0.8 + Math.random() * 0.4}s`;
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 1500);
+      }
+    }
+
     function checkAnswer(selectedButton, correctAnswer) {
       if (answerSelected) return;
       answerSelected = true;
@@ -212,13 +222,13 @@
       if (isCorrect) {
         score++;
         selectedButton.classList.add('correct');
-        showFeedbackOverlay('👍', 'correct');
+        createConfetti(selectedButton);
+        showFeedbackOverlay('🎉', 'correct');
       } else {
         selectedButton.classList.add('wrong');
-        showFeedbackOverlay('❌', 'wrong');
+        showFeedbackOverlay('💭', 'wrong');
       }
 
-      // Désactiver tous les boutons et afficher la bonne réponse
       Array.from(answerButtonsContainer.children).forEach(button => {
         button.disabled = true;
         if (button.textContent === correctAnswer && !isCorrect) {
@@ -230,25 +240,23 @@
       nextBtn.disabled = false;
     }
 
-    // Afficher le feedback visuel
     function showFeedbackOverlay(symbol, type) {
-      feedbackOverlay.textContent = symbol;
+      const content = feedbackOverlay.querySelector('.feedback-content');
+      content.textContent = symbol;
       feedbackOverlay.classList.remove('hidden', 'correct', 'wrong', 'show');
       feedbackOverlay.classList.add(type, 'show');
 
       setTimeout(() => {
         feedbackOverlay.classList.remove('show', type);
         feedbackOverlay.classList.add('hidden');
-      }, 1000);
+      }, 1200);
     }
 
-    // Question suivante
     function nextQuestion() {
       currentQuestionIndex++;
       displayQuestion();
     }
 
-    // Afficher les résultats
     function showResults() {
       quizScreen.classList.remove('active');
       resultsScreen.classList.add('active');
@@ -267,7 +275,6 @@
       }
     }
 
-    // Événements
     nextBtn.addEventListener('click', nextQuestion);
     restartBtn.addEventListener('click', () => {
       resultsScreen.classList.remove('active');

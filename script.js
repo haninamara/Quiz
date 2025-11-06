@@ -155,12 +155,30 @@
       });
     });
 
+    let highScores = JSON.parse(localStorage.getItem("highScores")) || {
+      beginner: 0,
+      intermediate: 0,
+      advanced: 0
+    };
+    function updateBestScoresOnHome(){
+  document.querySelector('.level-card.beginner .best-score').textContent =
+    "🏆 Record : " + highScores.beginner;
+
+  document.querySelector('.level-card.intermediate .best-score').textContent =
+    "🏆 Record : " + highScores.intermediate;
+
+  document.querySelector('.level-card.advanced .best-score').textContent =
+    "🏆 Record : " + highScores.advanced;
+}
+
 function startQuiz(){
   if(currentLevel=="beginner") timeLeft=15;
   if(currentLevel=="intermediate") timeLeft=12;
   if(currentLevel=="advanced") timeLeft=8;
 
   currentQuestions = quizData[currentLevel];
+  totalQuestionsSpan.textContent = currentQuestions.length;
+
   currentQuestionIndex=0;
   score=0;
   answerSelected = false; 
@@ -306,13 +324,45 @@ function nextQuestion(){
       } else {
         resultMessage.textContent = "💡 Bon début ! Revisitez les concepts de base.";
       }
+      // save best score
+      if(score > highScores[currentLevel]){
+        highScores[currentLevel] = score;
+        localStorage.setItem("highScores", JSON.stringify(highScores));
+        resultMessage.textContent += "\n🔥 Nouveau record !!";
+      } else {
+        resultMessage.textContent += `\n🏆 Best score ${currentLevel} : ${highScores[currentLevel]}`;
+      }
+      updateBestScoresOnHome();
+
     }
 
     nextBtn.addEventListener('click', nextQuestion);
+    updateBestScoresOnHome();
+
+
     restartBtn.addEventListener('click', () => {
-      resultsScreen.classList.remove('active');
-      introScreen.classList.add('active');
-    });
+
+    clearInterval(timerInterval);
+
+    // reset total
+    currentQuestions = [];
+    currentQuestionIndex = 0;
+    score = 0;
+    answerSelected = false;
+
+    // reset UI
+    progressBar.style.width = "0%";
+    progressText.textContent = "";
+    document.getElementById("timer").textContent = "";
+
+    // screens
+    resultsScreen.classList.remove('active');
+    quizScreen.classList.remove('active');
+    introScreen.classList.add('active');
+    
+      updateBestScoresOnHome(); 
+
+  });
 
 
 

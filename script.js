@@ -132,6 +132,7 @@
     let currentQuestionIndex = 0;
     let score = 0;
     let answerSelected = false;
+    let timerInterval;
 
     const introScreen = document.getElementById('intro-screen');
     const quizScreen = document.getElementById('quiz-screen');
@@ -154,45 +155,73 @@
       });
     });
 
-    function startQuiz() {
-      currentQuestions = quizData[currentLevel];
-      currentQuestionIndex = 0;
-      score = 0;
-      answerSelected = false;
+function startQuiz(){
+  if(currentLevel=="beginner") timeLeft=15;
+  if(currentLevel=="intermediate") timeLeft=12;
+  if(currentLevel=="advanced") timeLeft=8;
 
-      introScreen.classList.remove('active');
-      resultsScreen.classList.remove('active');
-      quizScreen.classList.add('active');
+  currentQuestions = quizData[currentLevel];
+  currentQuestionIndex=0;
+  score=0;
+  answerSelected = false; 
+  introScreen.classList.remove("active");
+  quizScreen.classList.add("active");
 
-      totalQuestionsSpan.textContent = currentQuestions.length;
-      displayQuestion();
-    }
+  displayQuestion();
+}
 
-    function displayQuestion() {
-      if (currentQuestionIndex >= currentQuestions.length) {
-        showResults();
-        return;
-      }
+function displayQuestion(){
+  answerSelected = false;
 
-      const currentQuestion = currentQuestions[currentQuestionIndex];
-      questionText.textContent = currentQuestion.question;
-      answerButtonsContainer.innerHTML = '';
-      nextBtn.classList.add('hidden');
-      nextBtn.disabled = true;
-      answerSelected = false;
+  if(currentLevel=="beginner") timeLeft=15;
+  if(currentLevel=="intermediate") timeLeft=12;
+  if(currentLevel=="advanced") timeLeft=8;
 
-      const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
-      progressBar.style.width = progress + '%';
-      progressText.textContent = `Question ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+  if(currentQuestionIndex>=currentQuestions.length){ showResults(); return; }
 
-      currentQuestion.answers.forEach(answer => {
-        const button = document.createElement('button');
-        button.textContent = answer;
-        button.classList.add('btn-answer');
-        button.addEventListener('click', () => checkAnswer(button, currentQuestion.correctAnswer));
-        answerButtonsContainer.appendChild(button);
-      });
-    }
+  const q = currentQuestions[currentQuestionIndex];
+
+  questionText.textContent=q.question;
+  answerButtonsContainer.innerHTML='';
+  nextBtn.classList.add('hidden');
+  nextBtn.disabled=true;
+
+  startTimer();
+
+  const progress = (currentQuestionIndex/currentQuestions.length)*100;
+  progressBar.style.width=progress+'%';
+  progressText.textContent=`Question ${currentQuestionIndex+1} / ${currentQuestions.length}`;
+
+  q.answers.forEach(a=>{
+    const btn=document.createElement('button');
+    btn.classList.add("btn-answer");
+    btn.textContent=a;
+    btn.onclick=()=>checkAnswer(btn,q.correctAnswer);
+    answerButtonsContainer.appendChild(btn);
+  });
+}
+
+
+function startTimer(){
+  clearInterval(timerInterval);
+  document.getElementById("timer").textContent="⏳ "+timeLeft+" s";
+
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timer").textContent="⏳ "+timeLeft+" s";
+    if(timeLeft<=0){ clearInterval(timerInterval); timeout(); }
+  },1000);
+}
+
+function timeout(){
+  Array.from(answerButtonsContainer.children).forEach(btn=>{
+    btn.disabled=true;
+    const correct = currentQuestions[currentQuestionIndex].correctAnswer;
+    if(btn.textContent===correct) btn.classList.add("correct");
+  });
+  nextBtn.classList.remove("hidden");
+  nextBtn.disabled=false;
+}
 
     function createConfetti(button) {
       const rect = button.getBoundingClientRect();
@@ -214,6 +243,8 @@
     }
 
     function checkAnswer(selectedButton, correctAnswer) {
+      clearInterval(timerInterval);
+
       if (answerSelected) return;
       answerSelected = true;
 
@@ -252,10 +283,12 @@
       }, 1200);
     }
 
-    function nextQuestion() {
-      currentQuestionIndex++;
-      displayQuestion();
-    }
+function nextQuestion(){
+  currentQuestionIndex++;
+  answerSelected = false;
+  displayQuestion();
+}
+
 
     function showResults() {
       quizScreen.classList.remove('active');
@@ -280,3 +313,8 @@
       resultsScreen.classList.remove('active');
       introScreen.classList.add('active');
     });
+
+
+
+
+

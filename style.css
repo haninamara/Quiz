@@ -543,3 +543,11 @@
         padding: 15px 30px;
       }
     }
+        .timer {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+

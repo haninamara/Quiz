@@ -1,77 +1,89 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Interactif Multi-niveaux</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz du Développeur Web 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="quiz-container">
-    <h1>🧠 Quiz du Développeur Web</h1>
+    <div class="quiz-container">
+        <h1>🧠 Quiz du Développeur Web</h1>
 
-    <!-- Écran d'accueil -->
-    <div id="intro-screen" class="screen active">
-      <p>Testez vos connaissances en HTML, CSS et JavaScript.<br>Choisissez votre niveau et relevez le défi ! 🚀</p>
-      
-      <div class="level-grid">
-        <div class="level-card beginner" data-level="beginner">
-          <div class="level-icon">🌱</div>
-          <div class="level-title">Débutant</div>
-          <div class="level-desc">8 questions basiques</div>
-            <div class="best-score"></div>
-
+        <div id="intro-screen" class="screen active">
+            <p>Testez vos connaissances en HTML, CSS et JavaScript.<br>Choisissez votre niveau et relevez le défi ! 🚀</p>
+            
+            <div class="level-grid">
+                <div class="level-card beginner" data-level="beginner">
+                    <div class="level-icon">🌱</div>
+                    <div class="level-title">Débutant</div>
+                    <div class="level-desc">Questions basiques</div>
+                    <div class="best-score"></div>
+                </div>
+                
+                <div class="level-card intermediate" data-level="intermediate">
+                    <div class="level-icon">⚡</div>
+                    <div class="level-title">Intermédiaire</div>
+                    <div class="level-desc">Questions avancées</div>
+                    <div class="best-score"></div>
+                </div>
+                
+                <div class="level-card advanced" data-level="advanced">
+                    <div class="level-icon">🔥</div>
+                    <div class="level-title">Expert</div>
+                    <div class="level-desc">Questions complexes</div>
+                    <div class="best-score"></div>
+                </div>
+            </div>
         </div>
-        
-        <div class="level-card intermediate" data-level="intermediate">
-          <div class="level-icon">⚡</div>
-          <div class="level-title">Intermédiaire</div>
-          <div class="level-desc">8 questions avancées</div>
-            <div class="best-score"></div>
 
+        <div id="rules-screen" class="screen modal-rules">
+            <h2>📜 Règles du Quiz et Système de Score</h2>
+            <div class="rules-content">
+                <p>Bienvenue ! Votre score dépend de la rapidité et de la justesse de vos réponses.</p>
+                <ul id="rules-list">
+                    <li>Chaque bonne réponse rapporte **10 points de base**.</li>
+                    <li>Un **bonus de 1 point** est ajouté pour chaque seconde restante au chrono.</li>
+                    <li>Une mauvaise réponse ou un temps écoulé rapporte **0 point**.</li>
+                    <li>Le temps alloué diminue selon le niveau : Débutant (15s), Intermédiaire (12s), Expert (8s).</li>
+                </ul>
+            </div>
+            <button id="start-quiz-btn" class="cta-btn">Commencer le Quiz !</button>
         </div>
-        
-        <div class="level-card advanced" data-level="advanced">
-          <div class="level-icon">🔥</div>
-          <div class="level-title">Expert</div>
-          <div class="level-desc">8 questions complexes</div>
-            <div class="best-score"></div>
 
+        <div id="quiz-screen" class="screen">
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            
+            <div class="info-bar">
+                <div id="timer" class="timer">⏳ 0 s</div>
+                <div id="current-score" class="score-display">Score : 0</div>
+            </div>
+
+            <div id="progress-text" class="progress-text">Question 0 / 0</div>
+
+            <h2 id="question-text">Question en cours...</h2>
+            <div id="answer-buttons" class="btn-grid"></div>
+            <button id="next-btn" class="cta-btn hidden" disabled>Question Suivante &rarr;</button>
         </div>
-      </div>
+
+        <div id="results-screen" class="screen">
+            <h2>🎉 Quiz Terminé !</h2>
+            <p id="total-final-score-text">Votre score final total est :</p>
+            <div class="score-badge">
+                <span id="final-score">0</span> pts
+            </div>
+            <p id="result-message"></p>
+            <button id="restart-btn" class="cta-btn">Choisir un nouveau niveau</button>
+        </div>
+
+        <div id="feedback-overlay" class="feedback-overlay hidden">
+            <div class="feedback-content"></div>
+        </div>
     </div>
 
-    <!-- Écran de quiz -->
-    <div id="quiz-screen" class="screen">
-      <div class="progress-container">
-        <div id="progress-bar" class="progress-bar"></div>
-      </div>
-            <div id="timer" class="timer"></div>
-
-      <div id="progress-text" class="progress-text">Question 1 / 8</div>
-
-      <h2 id="question-text">Question en cours...</h2>
-      <div id="answer-buttons" class="btn-grid"></div>
-      <button id="next-btn" class="cta-btn hidden" disabled>Question Suivante &rarr;</button>
-    </div>
-
-    <!-- Écran de résultats -->
-    <div id="results-screen" class="screen">
-      <h2>🎉 Quiz Terminé !</h2>
-      <div class="score-badge">
-        <span id="final-score">0</span> / <span id="total-questions">0</span>
-      </div>
-      <p id="result-message"></p>
-      <button id="restart-btn" class="cta-btn">Choisir un nouveau niveau</button>
-    </div>
-
-    <!-- Feedback overlay -->
-    <div id="feedback-overlay" class="feedback-overlay hidden">
-      <div class="feedback-content"></div>
-    </div>
-  </div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

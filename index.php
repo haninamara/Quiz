@@ -89,7 +89,6 @@ elseif ($currentLevel === 'ranking') {
                             <li>⏱️ Vous avez <strong>30 secondes</strong> par question.</li>
                             <li>✅ Chaque bonne réponse rapporte <strong>10 points</strong>.</li>
                             <li>⚡ Répondez rapidement (moins de 10s) pour un <strong>bonus de +5 points</strong> !</li>
-                            <li>🎯 Un maximum de <strong>10 questions</strong> seront affichées.</li>
                             <li>🏆 Votre score sera enregistré dans le classement.</li>
                         </ul>
                         <button type="submit" class="cta-btn">Commencer le Quiz !</button>

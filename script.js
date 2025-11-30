@@ -16,8 +16,10 @@ let state = {
     timer: null,
     timeRemaining: CONFIG.questionTime,
     questions: [],
-    userAnswers: []
+    userAnswers: [],
+    
 };
+state.questionAnswered = false;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -65,27 +67,21 @@ function initQuiz() {
 // Afficher une question spécifique
 function showQuestion(index) {
     if (index >= state.questions.length) {
-        // Quiz terminé
         endQuiz();
         return;
     }
 
     state.currentQuestionIndex = index;
+    state.questionAnswered = false; 
+
     const question = state.questions[index];
-
-    // Masquer toutes les questions
     state.questions.forEach(q => q.style.display = 'none');
-
-    // Afficher la question actuelle avec animation
     question.style.display = 'block';
     question.style.animation = 'fadeIn 0.6s ease';
-
-    // Mettre à jour la barre de progression
     updateProgress();
-
-    // Démarrer le timer
     startTimer();
 }
+
 
 // Démarrer le timer
 function startTimer() {
@@ -121,7 +117,8 @@ function startTimer() {
 function handleTimeout() {
     const currentQuestion = state.questions[state.currentQuestionIndex];
     const answerLabels = currentQuestion.querySelectorAll('.btn-answer-label');
-    
+      if (state.questionAnswered) return;
+        state.questionAnswered = true;
     // Désactiver tous les boutons
     answerLabels.forEach(label => {
         label.style.pointerEvents = 'none';
@@ -172,29 +169,34 @@ function setupAnswerButtons() {
         const radioInputs = question.querySelectorAll('input[type="radio"]');
 
         answerLabels.forEach((label, answerIndex) => {
-            label.addEventListener('click', function(e) {
-                // Vérifier si c'est la question actuelle
-                if (questionIndex !== state.currentQuestionIndex) {
-                    e.preventDefault();
-                    return;
-                }
+    label.addEventListener('click', function(e) {
+        // Vérifier si c'est la question actuelle
+        if (questionIndex !== state.currentQuestionIndex) {
+            e.preventDefault();
+            return;
+        }
 
-                // Arrêter le timer
-                clearInterval(state.timer);
+        // ✅ Vérifier si la question a déjà été traitée
+        if (state.questionAnswered) return;
+        state.questionAnswered = true;
 
-                // Désactiver tous les boutons de cette question
-                answerLabels.forEach(l => {
-                    l.style.pointerEvents = 'none';
-                });
+        // Arrêter le timer
+        clearInterval(state.timer);
 
-                // Récupérer la valeur de la réponse
-                const selectedInput = label.querySelector('input[type="radio"]');
-                const answerId = selectedInput.value;
-
-                // Vérifier la réponse via AJAX
-                checkAnswer(question, answerId, label, answerLabels);
-            });
+        // Désactiver tous les boutons de cette question
+        answerLabels.forEach(l => {
+            l.style.pointerEvents = 'none';
         });
+
+        // Récupérer la valeur de la réponse
+        const selectedInput = label.querySelector('input[type="radio"]');
+        const answerId = selectedInput.value;
+
+        // Vérifier la réponse via AJAX
+        checkAnswer(question, answerId, label, answerLabels);
+    });
+});
+
     });
 }
 

@@ -1,351 +1,547 @@
-const quizData = {
-    beginner: [
-        { question: "Quelle balise HTML est utilisée pour créer un lien hypertexte ?", answers: ["<link>", "<a>", "<href>"], correctAnswer: "<a>", type: "qcm" },
-        { question: "Le CSS est utilisé pour la structure d'une page web (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Faux", type: "boolean" },
-        { question: "Quel événement JavaScript est déclenché lors d'un clic ?", answers: ["onclick", "onhover", "onload"], correctAnswer: "onclick", type: "qcm" },
-        { question: "Quelle balise HTML crée un paragraphe ?", answers: ["<p>", "<paragraph>", "<text>"], correctAnswer: "<p>", type: "qcm" },
-        { question: "La propriété CSS `color` modifie la couleur de fond (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Faux", type: "boolean" },
-        { question: "Comment déclarer une variable en JavaScript moderne ?", answers: ["variable x = 5", "let x = 5", "var x := 5"], correctAnswer: "let x = 5", type: "qcm" },
-        { question: "Quelle propriété CSS contrôle la taille du texte ?", answers: ["font-size", "text-size", "size"], correctAnswer: "font-size", type: "qcm" },
-        { question: "La balise `<ul>` crée une liste ordonnée (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Faux", type: "boolean" }
-    ],
-    intermediate: [
-        { question: "Quel mot-clé déclare une variable constante en JavaScript ?", answers: ["var", "let", "const"], correctAnswer: "const", type: "qcm" },
-        { question: "En Flexbox, `align-items` centre sur l'axe secondaire (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Vrai", type: "boolean" },
-        { question: "Quelle méthode JavaScript ajoute un élément à la fin d'un tableau ?", answers: ["push()", "add()", "append()"], correctAnswer: "push()", type: "qcm" },
-        { question: "Quel attribut HTML rend un champ obligatoire ?", answers: ["must", "required", "mandatory"], correctAnswer: "required", type: "qcm" },
-        { question: "Quelle est la fonction principale du sélecteur '::before' en CSS ?", answers: ["Ajouter une classe à un élément", "Insérer du contenu avant un élément", "Déplacer un élément au début"], correctAnswer: "Insérer du contenu avant un élément", type: "qcm" },
-        { question: "La portée (`scope`) des variables déclarées avec `var` est de type bloc (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Faux", type: "boolean" },
-        { question: "Comment sélectionner un élément par ID en JavaScript ?", answers: ["document.querySelector('#id')", "document.getElement('id')", "document.selectId('id')"], correctAnswer: "document.querySelector('#id')", type: "qcm" },
-        { question: "Quelle propriété CSS crée un dégradé linéaire ?", answers: ["background-gradient", "linear-gradient()", "gradient"], correctAnswer: "linear-gradient()", type: "qcm" }
-    ],
-    advanced: [
-        { question: "La principale différence entre '==' et '===' est la vérification du type (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Vrai", type: "boolean" },
-        { question: "Quel est le rôle de 'event.preventDefault()' ?", answers: ["Annule le comportement par défaut", "Arrête la propagation", "Supprime l'événement"], correctAnswer: "Annule le comportement par défaut", type: "qcm" },
-        { question: "En CSS Grid, 'grid-template-areas' définit des zones nommées (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Vrai", type: "boolean" },
-        { question: "Qu'est-ce qu'une closure en JavaScript ?", answers: ["Une fonction qui accède à son scope externe", "Une boucle fermée", "Un objet immuable"], correctAnswer: "Une fonction qui accède à son scope externe", type: "qcm" },
-        { question: "Que retourne 'Promise.all()' si une promesse échoue ?", answers: ["Rejette immédiatement", "Attend toutes les promesses", "Retourne un tableau vide"], correctAnswer: "Rejette immédiatement", type: "qcm" },
-        { question: "Le 'hoisting' déplace l'initialisation des variables au début du scope (Vrai/Faux) ?", answers: ["Vrai", "Faux"], correctAnswer: "Faux", type: "boolean" },
-        { question: "Quel sélecteur CSS cible le premier enfant d'un type spécifique ?", answers: [":first-of-type", ":first-child", ":nth-child(1)"], correctAnswer: ":first-of-type", type: "qcm" },
-        { question: "Quelle propriété CSS crée un contexte de empilement (stacking context) ?", answers: ["z-index avec position", "stack-order", "layer"], correctAnswer: "z-index avec position", type: "qcm" }
-    ]
+// Quiz Interactive JavaScript
+// =========================
+
+// Configuration
+const CONFIG = {
+    questionTime: 30, // Temps par question en secondes
+    basePoints: 10, // Points de base par bonne réponse
+    timeBonus: 5, // Bonus si réponse rapide (< 10s)
+    penaltyPoints: 0 // Pénalité pour mauvaise réponse (0 = pas de pénalité)
 };
 
-// --- Variables Globales ---
-let currentLevel = '';
-let currentQuestions = [];
-let currentQuestionIndex = 0;
-let totalScore = 0;
-let answerSelected = false;
-let timerInterval;
-let timeLeft;
-
-// --- Constantes de notation ---
-const BASE_POINTS = 10;
-const TIME_BONUS_PER_SECOND = 1;
-
-// --- Références DOM ---
-const $ = id => document.getElementById(id);
-
-const introScreen = $('intro-screen');
-const rulesScreen = $('rules-screen'); 
-const startQuizBtn = $('start-quiz-btn'); 
-const quizScreen = $('quiz-screen');
-const resultsScreen = $('results-screen');
-const questionText = $('question-text');
-const answerButtonsContainer = $('answer-buttons');
-const nextBtn = $('next-btn');
-const restartBtn = $('restart-btn');
-const progressBar = $('progress-bar');
-const progressText = $('progress-text');
-const finalScore = $('final-score');
-const totalQuestionsSpan = $('total-questions');
-const resultMessage = $('result-message');
-const feedbackOverlay = $('feedback-overlay');
-const currentScoreDisplay = $('current-score');
-const timerDisplay = $('timer');
-
-// Récupération des meilleurs scores
-let highScores = JSON.parse(localStorage.getItem("highScores")) || {
-    beginner: 0,
-    intermediate: 0,
-    advanced: 0
+// État du quiz
+let state = {
+    currentQuestionIndex: 0,
+    score: 0,
+    timer: null,
+    timeRemaining: CONFIG.questionTime,
+    questions: [],
+    userAnswers: []
 };
 
-// --- Fonctions de Démarrage et Affichage ---
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    initQuiz();
+});
 
-function updateBestScoresOnHome() {
-    document.querySelector('.level-card.beginner .best-score').textContent = `🏆 Record : ${highScores.beginner} pts`;
-    document.querySelector('.level-card.intermediate .best-score').textContent = `🏆 Record : ${highScores.intermediate} pts`;
-    document.querySelector('.level-card.advanced .best-score').textContent = `🏆 Record : ${highScores.advanced} pts`;
-}
-
-function getInitialTime() {
-    switch (currentLevel) {
-        case "beginner": return 15;
-        case "intermediate": return 12;
-        case "advanced": return 8;
-        default: return 10;
-    }
-}
-
-function showRules() {
-    // Affiche le modal de règles après la sélection du niveau
-    introScreen.classList.remove("active");
-    rulesScreen.classList.add("active");
-}
-
-function startQuiz() {
-    currentQuestions = quizData[currentLevel];
-    currentQuestionIndex = 0;
-    totalScore = 0;
-    answerSelected = false;
-    currentScoreDisplay.textContent = `Score : 0`;
-
-    // Transition des règles au quiz
-    rulesScreen.classList.remove("active");
-    quizScreen.classList.add("active");
-
-    displayQuestion();
-}
-
-function displayQuestion() {
-    answerSelected = false;
-    timeLeft = getInitialTime();
-
-    if (currentQuestionIndex >= currentQuestions.length) {
-        // Cette vérification est cruciale pour éviter d'afficher une question inexistante
-        showResults();
+// Fonction d'initialisation
+function initQuiz() {
+    // Vérifier si on est sur la page du quiz
+    const quizScreen = document.getElementById('quiz-screen');
+    if (!quizScreen || !quizScreen.classList.contains('active')) {
         return;
     }
 
-    const q = currentQuestions[currentQuestionIndex];
+    // Récupérer toutes les questions depuis le DOM
+    const questionBlocks = document.querySelectorAll('.question-block');
+    state.questions = Array.from(questionBlocks);
 
-    // Mise à jour de l'UI
-    questionText.textContent = q.question;
-    answerButtonsContainer.innerHTML = '';
-    nextBtn.classList.add('hidden');
-    nextBtn.disabled = true;
+    if (state.questions.length === 0) {
+        return;
+    }
 
+    // Masquer toutes les questions
+    state.questions.forEach(q => q.style.display = 'none');
+
+    // Masquer le bouton de soumission initial
+    const submitBtn = document.querySelector('.submit-btn');
+    if (submitBtn) {
+        submitBtn.style.display = 'none';
+    }
+
+    // Afficher la première question
+    showQuestion(0);
+
+    // Ajouter les événements aux boutons de réponse
+    setupAnswerButtons();
+
+    // Créer l'overlay de feedback
+    createFeedbackOverlay();
+
+    // Initialiser l'affichage du score
+    updateScoreDisplay();
+}
+
+// Afficher une question spécifique
+function showQuestion(index) {
+    if (index >= state.questions.length) {
+        // Quiz terminé
+        endQuiz();
+        return;
+    }
+
+    state.currentQuestionIndex = index;
+    const question = state.questions[index];
+
+    // Masquer toutes les questions
+    state.questions.forEach(q => q.style.display = 'none');
+
+    // Afficher la question actuelle avec animation
+    question.style.display = 'block';
+    question.style.animation = 'fadeIn 0.6s ease';
+
+    // Mettre à jour la barre de progression
+    updateProgress();
+
+    // Démarrer le timer
     startTimer();
-    updateProgressBar();
-
-    // Création des boutons de réponse (gère QCM et Vrai/Faux)
-    q.answers.forEach(a => {
-        const btn = document.createElement('button');
-        btn.classList.add("btn-answer");
-        // Retire la modification de style inline pour que le CSS gère la largeur de manière uniforme
-        if (q.type === 'boolean') {
-            btn.classList.add('btn-boolean'); 
-        }
-        btn.textContent = a;
-        btn.onclick = () => checkAnswer(btn, q.correctAnswer);
-        answerButtonsContainer.appendChild(btn);
-    });
 }
 
-function updateProgressBar() {
-    const total = currentQuestions.length;
-    // On utilise currentQuestionIndex + 1 pour l'affichage, sauf si le quiz est fini
-    const currentStep = currentQuestionIndex < total ? currentQuestionIndex + 1 : total; 
-    const progress = (currentQuestionIndex / total) * 100;
-    progressBar.style.width = progress + '%';
-    progressText.textContent = `Question ${currentStep} / ${total}`;
-}
-
-// --- Logique du Chronomètre et du Score ---
-
+// Démarrer le timer
 function startTimer() {
-    clearInterval(timerInterval);
-    timerDisplay.textContent = `⏳ ${timeLeft} s`;
+    state.timeRemaining = CONFIG.questionTime;
+    updateTimerDisplay();
 
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = `⏳ ${timeLeft} s`;
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            timeout();
+    // Nettoyer l'ancien timer si existant
+    if (state.timer) {
+        clearInterval(state.timer);
+    }
+
+    // Créer un nouveau timer
+    state.timer = setInterval(() => {
+        state.timeRemaining--;
+        updateTimerDisplay();
+
+        // Changer la couleur du timer quand il reste peu de temps
+        const timerElement = document.getElementById('timer');
+        if (state.timeRemaining <= 10) {
+            timerElement.style.background = 'linear-gradient(135deg, #ff7675, #d63031)';
+            timerElement.style.animation = 'pulse 1s infinite';
+        }
+
+        // Temps écoulé
+        if (state.timeRemaining <= 0) {
+            clearInterval(state.timer);
+            handleTimeout();
         }
     }, 1000);
 }
 
-function timeout() {
-    if (answerSelected) return;
-    answerSelected = true;
-
-    Array.from(answerButtonsContainer.children).forEach(btn => {
-        btn.disabled = true;
-        const correct = currentQuestions[currentQuestionIndex].correctAnswer;
-        if (btn.textContent === correct) {
-            btn.classList.add("correct");
-        }
+// Gérer le timeout
+function handleTimeout() {
+    const currentQuestion = state.questions[state.currentQuestionIndex];
+    const answerLabels = currentQuestion.querySelectorAll('.btn-answer-label');
+    
+    // Désactiver tous les boutons
+    answerLabels.forEach(label => {
+        label.style.pointerEvents = 'none';
+        label.style.opacity = '0.5';
     });
 
-    showFeedbackOverlay('⏳ Temps écoulé. 0 pt', 'wrong'); 
-    
-    nextBtn.classList.remove("hidden");
-    nextBtn.disabled = false;
+    // Afficher le feedback de timeout
+    showFeedback(false, 0, true);
+
+    // Passer à la question suivante après un délai
+    setTimeout(() => {
+        showQuestion(state.currentQuestionIndex + 1);
+    }, 2000);
 }
 
-function checkAnswer(selectedButton, correctAnswer) {
-    clearInterval(timerInterval);
-
-    if (answerSelected) return;
-    answerSelected = true;
-
-    const isCorrect = selectedButton.textContent === correctAnswer;
-    let pointsGagnes = 0;
-
-    if (isCorrect) {
-        // Calcul du score avec BONIFICATION TEMPORELLE
-        const bonus = timeLeft * TIME_BONUS_PER_SECOND;
-        pointsGagnes = BASE_POINTS + bonus;
-        totalScore += pointsGagnes;
-        
-        selectedButton.classList.add('correct');
-        createConfetti(selectedButton);
-        showFeedbackOverlay(`+${pointsGagnes} pts! 🎉`, 'correct');
-    } else {
-        // Réponse fausse = 0 point gagné
-        pointsGagnes = 0; 
-        selectedButton.classList.add('wrong');
-        showFeedbackOverlay('💭 0 pt', 'wrong');
+// Mettre à jour l'affichage du timer
+function updateTimerDisplay() {
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+        timerElement.textContent = `⏳ Temps : ${state.timeRemaining}s`;
     }
+}
 
-    // Afficher la bonne réponse pour le feedback visuel
-    Array.from(answerButtonsContainer.children).forEach(button => {
-        button.disabled = true;
-        if (button.textContent === correctAnswer && !isCorrect) {
-            button.classList.add('correct');
-        }
+// Mettre à jour l'affichage du score
+function updateScoreDisplay() {
+    const scoreElement = document.getElementById('current-score');
+    if (scoreElement) {
+        scoreElement.textContent = `Score : ${state.score}`;
+    }
+}
+
+// Mettre à jour la barre de progression
+function updateProgress() {
+    const progressBar = document.querySelector('.progress-bar');
+    const progressText = document.querySelector('.progress-text');
+    
+    if (progressBar && progressText) {
+        const progress = ((state.currentQuestionIndex + 1) / state.questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `Question ${state.currentQuestionIndex + 1} sur ${state.questions.length}`;
+    }
+}
+
+// Configurer les événements des boutons de réponse
+function setupAnswerButtons() {
+    state.questions.forEach((question, questionIndex) => {
+        const answerLabels = question.querySelectorAll('.btn-answer-label');
+        const radioInputs = question.querySelectorAll('input[type="radio"]');
+
+        answerLabels.forEach((label, answerIndex) => {
+            label.addEventListener('click', function(e) {
+                // Vérifier si c'est la question actuelle
+                if (questionIndex !== state.currentQuestionIndex) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Arrêter le timer
+                clearInterval(state.timer);
+
+                // Désactiver tous les boutons de cette question
+                answerLabels.forEach(l => {
+                    l.style.pointerEvents = 'none';
+                });
+
+                // Récupérer la valeur de la réponse
+                const selectedInput = label.querySelector('input[type="radio"]');
+                const answerId = selectedInput.value;
+
+                // Vérifier la réponse via AJAX
+                checkAnswer(question, answerId, label, answerLabels);
+            });
+        });
     });
-    
-    currentScoreDisplay.textContent = `Score : ${totalScore}`;
-    nextBtn.classList.remove('hidden');
-    nextBtn.disabled = false;
 }
 
-function nextQuestion() {
-    // Vérifie si c'est la dernière question. Si oui, on passe directement aux résultats sans transition.
-    if (currentQuestionIndex === currentQuestions.length - 1) {
-        currentQuestionIndex++;
-        showResults();
-        return;
-    }
+// Vérifier la réponse
+function checkAnswer(questionElement, answerId, selectedLabel, allLabels) {
+    const questionId = questionElement.querySelector('input[type="radio"]').name.match(/\d+/)[0];
 
-    quizScreen.classList.remove('active');
-    setTimeout(() => {
-        currentQuestionIndex++;
-        displayQuestion();
-        quizScreen.classList.add('active');
-    }, 300); 
-}
-
-// --- Logique du Résultat et de la Sauvegarde ---
-
-function showResults() {
-    // 1. Cacher l'écran du quiz
-    quizScreen.classList.remove('active'); 
-    // 2. Afficher l'écran des résultats
-    resultsScreen.classList.add('active'); 
-    
-    finalScore.textContent = totalScore;
-
-    const maxScorePerQuestion = BASE_POINTS + getInitialTime() * TIME_BONUS_PER_SECOND;
-    const maxScoreTotal = currentQuestions.length * maxScorePerQuestion;
-    const percentage = (totalScore / maxScoreTotal) * 100;
-
-    let message = '';
-    
-    if (percentage >= 90) {
-        message = "🌟 Parfait ! Score impeccable et rapidité d'exécution !";
-    } else if (percentage >= 70) {
-        message = "💪 Excellent travail ! Vous maîtrisez le sujet !";
-    } else if (percentage >= 40) {
-        message = "👍 Bien joué ! Continuez à pratiquer pour améliorer votre rapidité.";
-    } else {
-        message = "💡 Bon début ! Revisitez les concepts de base.";
-    }
-    
-    resultMessage.textContent = message;
-
-    if (totalScore > highScores[currentLevel]) {
-        highScores[currentLevel] = totalScore;
-        localStorage.setItem("highScores", JSON.stringify(highScores));
-        resultMessage.textContent += "\n🔥 Nouveau record !!";
-    } else {
-        resultMessage.textContent += `\n🏆 Meilleur score ${currentLevel} : ${highScores[currentLevel]} pts`;
-    }
-    updateBestScoresOnHome();
-}
-
-// --- Fonctions d'Effets Visuels (Confetti/Overlay) ---
-
-function createConfetti(button) {
-    const rect = button.getBoundingClientRect();
-    const colors = ['#55efc4', '#81ecec', '#74b9ff', '#a29bfe', '#ffeaa7'];
-    
-    for (let i = 0; i < 15; i++) {
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
-        confetti.style.left = (rect.left + rect.width / 2) + 'px';
-        confetti.style.top = rect.top + 'px';
-        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-        confetti.style.animationDelay = `${Math.random() * 0.2}s`;
-        confetti.style.animationDuration = `${0.8 + Math.random() * 0.4}s`;
-        document.body.appendChild(confetti);
+    // Appel AJAX pour vérifier la réponse
+    fetch('check_answer.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `question_id=${questionId}&answer_id=${answerId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        const isCorrect = data.correct;
         
-        setTimeout(() => confetti.remove(), 1500);
-    }
+        // Calculer les points
+        let points = 0;
+        if (isCorrect) {
+            points = CONFIG.basePoints;
+            // Bonus de temps si réponse rapide
+            if (state.timeRemaining > 20) {
+                points += CONFIG.timeBonus;
+            }
+            state.score += points;
+        } else {
+            points = -CONFIG.penaltyPoints;
+            state.score = Math.max(0, state.score + points);
+        }
+
+        // Mettre à jour le score
+        updateScoreDisplay();
+
+        // Appliquer les styles visuels
+        if (isCorrect) {
+            selectedLabel.classList.add('correct');
+            createConfetti(selectedLabel);
+        } else {
+            selectedLabel.classList.add('wrong');
+            // Montrer la bonne réponse
+            highlightCorrectAnswer(questionElement, allLabels);
+        }
+
+        // Afficher le feedback
+        showFeedback(isCorrect, points);
+
+        // Sauvegarder la réponse
+        state.userAnswers.push({
+            questionId: questionId,
+            answerId: answerId,
+            correct: isCorrect,
+            points: points
+        });
+
+        // Passer à la question suivante après un délai
+        setTimeout(() => {
+            showQuestion(state.currentQuestionIndex + 1);
+        }, 2500);
+    })
+    .catch(error => {
+        console.error('Erreur lors de la vérification:', error);
+        // En cas d'erreur, passer à la question suivante
+        setTimeout(() => {
+            showQuestion(state.currentQuestionIndex + 1);
+        }, 1500);
+    });
 }
 
-function showFeedbackOverlay(text, type) {
-    const content = feedbackOverlay.querySelector('.feedback-content');
-    content.innerHTML = text; 
-    feedbackOverlay.classList.remove('hidden', 'correct', 'wrong', 'show');
-    feedbackOverlay.classList.add(type, 'show');
+// Mettre en évidence la bonne réponse
+function highlightCorrectAnswer(questionElement, allLabels) {
+    // Chercher la bonne réponse via un appel API ou l'attribut data
+    allLabels.forEach(label => {
+        const input = label.querySelector('input[type="radio"]');
+        // On pourrait ajouter un attribut data-correct dans le PHP
+        // Pour l'instant, on fait une requête supplémentaire
+        const answerId = input.value;
+        const questionId = input.name.match(/\d+/)[0];
+        
+        fetch('check_answer.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `question_id=${questionId}&answer_id=${answerId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.correct && !label.classList.contains('correct')) {
+                label.style.borderColor = '#55efc4';
+                label.style.background = 'linear-gradient(135deg, rgba(85, 239, 196, 0.2), rgba(0, 184, 148, 0.2))';
+            }
+        });
+    });
+}
 
+// Créer l'overlay de feedback
+function createFeedbackOverlay() {
+    if (document.getElementById('feedback-overlay')) {
+        return; // Déjà créé
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'feedback-overlay';
+    overlay.className = 'feedback-overlay';
+    overlay.innerHTML = '<div class="feedback-content"></div>';
+    document.body.appendChild(overlay);
+}
+
+// Afficher le feedback
+function showFeedback(isCorrect, points, isTimeout = false) {
+    const overlay = document.getElementById('feedback-overlay');
+    const content = overlay.querySelector('.feedback-content');
+
+    if (isTimeout) {
+        overlay.className = 'feedback-overlay wrong show';
+        content.textContent = '⏰ Temps écoulé !';
+    } else if (isCorrect) {
+        overlay.className = 'feedback-overlay correct show';
+        content.textContent = `✓ Correct ! +${points} pts`;
+    } else {
+        overlay.className = 'feedback-overlay wrong show';
+        content.textContent = points < 0 ? `✗ Incorrect ${points} pts` : '✗ Incorrect';
+    }
+
+    // Masquer après l'animation
     setTimeout(() => {
-        feedbackOverlay.classList.remove('show', type);
-        feedbackOverlay.classList.add('hidden');
+        overlay.classList.remove('show');
     }, 1200);
 }
 
-// --- Écouteurs d'Événements ---
+// Créer des confettis
+function createConfetti(element) {
+    const colors = ['#55efc4', '#00b894', '#74b9ff', '#a29bfe', '#fd79a8', '#ffeaa7'];
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-// 1. Sélection du niveau -> Affiche les règles
-document.querySelectorAll('.level-card').forEach(card => {
-    card.addEventListener('click', () => {
-        currentLevel = card.dataset.level;
-        showRules(); 
-    });
-});
+    for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = centerX + 'px';
+        confetti.style.top = centerY + 'px';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.transform = `translate(${(Math.random() - 0.5) * 200}px, ${(Math.random() - 0.5) * 200}px)`;
+        
+        document.body.appendChild(confetti);
 
-// 2. Clic sur "Commencer le Quiz" (dans le modal) -> Démarre le quiz
-startQuizBtn.addEventListener('click', startQuiz); 
+        // Supprimer après l'animation
+        setTimeout(() => confetti.remove(), 1000);
+    }
+}
 
-// 3. Bouton "Question Suivante"
-nextBtn.addEventListener('click', nextQuestion);
+// Terminer le quiz
+function endQuiz() {
+    // Arrêter le timer s'il est en cours
+    if (state.timer) {
+        clearInterval(state.timer);
+    }
 
-// 4. Bouton "Choisir un nouveau niveau" (dans le résultat)
-restartBtn.addEventListener('click', () => {
-    clearInterval(timerInterval);
+    // Masquer l'écran du quiz
+    const quizScreen = document.getElementById('quiz-screen');
+    if (quizScreen) {
+        quizScreen.classList.remove('active');
+        quizScreen.style.display = 'none';
+    }
 
-    // Reset UI
-    progressBar.style.width = "0%";
-    progressText.textContent = "";
-    timerDisplay.textContent = "⏳ 0 s";
-    currentScoreDisplay.textContent = "Score : 0";
-
-    // Screens
-    resultsScreen.classList.remove('active');
-    quizScreen.classList.remove('active');
-    rulesScreen.classList.remove('active'); 
-    introScreen.classList.add('active');
+    // Créer ou afficher l'écran des résultats
+    let resultsScreen = document.getElementById('results-screen');
     
-    updateBestScoresOnHome(); 
-});
+    if (!resultsScreen) {
+        // Créer l'écran des résultats
+        resultsScreen = document.createElement('div');
+        resultsScreen.id = 'results-screen';
+        resultsScreen.className = 'screen active';
+        
+        const username = getUsername();
+        const level = getCurrentLevel();
+        
+        resultsScreen.innerHTML = `
+            <h2>🎉 Quiz Terminé !</h2>
+            <p id="total-final-score-text">Score de <strong>${username}</strong> :</p>
+            <div class="score-badge">
+                <span id="final-score">${state.score}</span> pts
+            </div>
+            <p id="result-message">${getResultMessage(state.score)}</p>
+            
+            <div style="margin: 30px 0;">
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">📊 Résumé de vos réponses</h3>
+                <div id="answers-summary" style="text-align: left; max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 20px; border-radius: 15px;">
+                    ${generateAnswersSummary()}
+                </div>
+            </div>
+            
+            <button onclick="saveScoreAndContinue()" class="cta-btn">💾 Sauvegarder mon score</button>
+            <a href="?level=ranking" class="cta-btn" style="margin-top: 10px;">Voir le Classement 🏆</a>
+            <a href="index.php" class="cta-btn" style="margin-top: 10px; background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">Nouveau Quiz 🔄</a>
+        `;
+        
+        document.querySelector('.quiz-container').appendChild(resultsScreen);
+    } else {
+        resultsScreen.classList.add('active');
+        resultsScreen.style.display = 'block';
+    }
 
-// Initialisation
-updateBestScoresOnHome();
+    // Faire défiler vers le haut
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Générer le résumé des réponses
+function generateAnswersSummary() {
+    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+    
+    state.userAnswers.forEach((answer, index) => {
+        const icon = answer.correct ? '✅' : '❌';
+        const color = answer.correct ? 'var(--success-dark)' : 'var(--error-dark)';
+        const points = answer.points > 0 ? `+${answer.points}` : answer.points;
+        
+        html += `
+            <div style="padding: 12px; background: white; border-radius: 10px; border-left: 4px solid ${color};">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600;">${icon} Question ${index + 1}</span>
+                    <span style="color: ${color}; font-weight: 700;">${points} pts</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    // Stats globales
+    const correctCount = state.userAnswers.filter(a => a.correct).length;
+    const totalQuestions = state.userAnswers.length;
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+    
+    html = `
+        <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid var(--primary-color);">
+            <div style="display: flex; justify-content: space-around; text-align: center;">
+                <div>
+                    <div style="font-size: 2rem; color: var(--success-dark);">${correctCount}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">Correctes</div>
+                </div>
+                <div>
+                    <div style="font-size: 2rem; color: var(--error-dark);">${totalQuestions - correctCount}</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">Incorrectes</div>
+                </div>
+                <div>
+                    <div style="font-size: 2rem; color: var(--primary-color);">${percentage}%</div>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">Réussite</div>
+                </div>
+            </div>
+        </div>
+    ` + html;
+    
+    return html;
+}
+
+// Message de résultat basé sur le score
+function getResultMessage(score) {
+    if (score >= 100) {
+        return '🏆 <span style="color: var(--success-dark);">Excellent ! Vous êtes un expert !</span>';
+    } else if (score >= 70) {
+        return '🌟 <span style="color: var(--primary-color);">Très bien ! Continuez comme ça !</span>';
+    } else if (score >= 40) {
+        return '👍 <span style="color: var(--intermediate-color);">Bon travail ! Quelques révisions et ce sera parfait !</span>';
+    } else {
+        return '💪 <span style="color: var(--text-light);">Bon début ! Réessayez pour améliorer votre score !</span>';
+    }
+}
+
+// Sauvegarder le score et permettre de continuer
+function saveScoreAndContinue() {
+    const username = getUsername();
+    const level = getCurrentLevel();
+    
+    // Désactiver le bouton pendant la sauvegarde
+    const saveBtn = event.target;
+    saveBtn.disabled = true;
+    saveBtn.textContent = '💾 Sauvegarde en cours...';
+    
+    // Préparer les données pour la soumission
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'index.php';
+
+    // Action
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'submit_quiz';
+    form.appendChild(actionInput);
+
+    // Niveau
+    const levelInput = document.createElement('input');
+    levelInput.type = 'hidden';
+    levelInput.name = 'level';
+    levelInput.value = level;
+    form.appendChild(levelInput);
+
+    // Nom d'utilisateur
+    const usernameInput = document.createElement('input');
+    usernameInput.type = 'hidden';
+    usernameInput.name = 'username';
+    usernameInput.value = username;
+    form.appendChild(usernameInput);
+
+    // Score
+    const scoreInput = document.createElement('input');
+    scoreInput.type = 'hidden';
+    scoreInput.name = 'final_score';
+    scoreInput.value = state.score;
+    form.appendChild(scoreInput);
+
+    // Réponses de l'utilisateur
+    state.userAnswers.forEach(answer => {
+        const answerInput = document.createElement('input');
+        answerInput.type = 'hidden';
+        answerInput.name = `answers[${answer.questionId}]`;
+        answerInput.value = answer.answerId;
+        form.appendChild(answerInput);
+    });
+
+    // Ajouter le formulaire au DOM et le soumettre
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Récupérer le niveau actuel depuis l'URL ou le DOM
+function getCurrentLevel() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('level') || 'beginner';
+}
+
+// Récupérer le nom d'utilisateur depuis l'URL ou le DOM
+function getUsername() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('username') || 'Anonymous';
+}
+
+// Animation de pulsation pour le timer
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+`;
+document.head.appendChild(style);

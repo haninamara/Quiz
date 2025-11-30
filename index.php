@@ -1,8 +1,7 @@
 <?php
-// Fichier : index.php
 
-require 'quiz_api.php'; // Renommé le fichier de l'API
-$currentLevel = $_GET['level'] ?? 'intro'; // Le niveau sélectionné, 'intro' par défaut
+require 'quiz_api.php';
+$currentLevel = $_GET['level'] ?? 'intro';
 $questions = [];
 $quizComplete = false;
 $finalScore = 0;
@@ -15,33 +14,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $userAnswers = $_POST['answers'] ?? [];
     $level = $_POST['level'] ?? 'unknown';
     $username = htmlspecialchars($_POST['username'] ?? 'Anonymous');
-    $totalScore = 0;
-    // Note: Le calcul du temps/bonus est complexe à gérer sans JS/AJAX lors de la soumission unique.
-    // Nous utiliserons le score de base de 10 points par question pour cette version simplifiée.
-    $points_per_question = 10; 
+    
+    // Le score final est maintenant calculé par JavaScript
+    $finalScore = isset($_POST['final_score']) ? (int)$_POST['final_score'] : 0;
 
-    foreach ($userAnswers as $question_id => $answer_id) {
-        $q_id = (int)$question_id;
-        $a_id = (int)$answer_id;
-
-        // Validation côté serveur
-        if (checkAnswer($pdo, $q_id, $a_id)) {
-            $totalScore += $points_per_question;
-        }
-    }
-
-    if (!empty($username)) {
-        saveScore($pdo, $username, $level, $totalScore);
+    // Sauvegarder le score
+    if (!empty($username) && $finalScore > 0) {
+        saveScore($pdo, $username, $level, $finalScore);
     }
     
-    $finalScore = $totalScore;
-    $resultsMessage = "Quiz terminé. Votre score final est de **{$finalScore} points**.";
+    $resultsMessage = "Félicitations ! Vous avez terminé le quiz.";
     $quizComplete = true; 
-    $currentLevel = 'results'; // Affiche l'écran des résultats
+    $currentLevel = 'results';
 } 
 
 // --- 2. Chargement des questions pour l'affichage du quiz ---
-elseif ($currentLevel !== 'intro' && $currentLevel !== 'results' && $currentLevel !== 'ranking') {
+elseif ($currentLevel !== 'intro' && $currentLevel !== 'results' && $currentLevel !== 'ranking' && $currentLevel !== 'rules') {
     $questions = getQuestionsByLevel($pdo, $currentLevel);
 }
 
@@ -60,7 +48,7 @@ elseif ($currentLevel === 'ranking') {
     <title>Quiz du Développeur Web 🚀</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    </head>
+</head>
 <body>
     <div class="quiz-container">
         <h1>🧠 Quiz du Développeur Web</h1>
@@ -98,8 +86,11 @@ elseif ($currentLevel === 'ranking') {
                         </div>
 
                         <ul id="rules-list">
-                            <li>Chaque bonne réponse rapporte **10 points**.</li>
-                            <li>Le temps n'est pas utilisé pour le score, mais un maximum de **10 questions** seront affichées.</li>
+                            <li>⏱️ Vous avez <strong>30 secondes</strong> par question.</li>
+                            <li>✅ Chaque bonne réponse rapporte <strong>10 points</strong>.</li>
+                            <li>⚡ Répondez rapidement (moins de 10s) pour un <strong>bonus de +5 points</strong> !</li>
+                            <li>🎯 Un maximum de <strong>10 questions</strong> seront affichées.</li>
+                            <li>🏆 Votre score sera enregistré dans le classement.</li>
                         </ul>
                         <button type="submit" class="cta-btn">Commencer le Quiz !</button>
                     </form>
@@ -111,45 +102,60 @@ elseif ($currentLevel === 'ranking') {
                 <h2>Quiz - Niveau : <?php echo ucfirst($currentLevel); ?></h2>
                 
                 <div class="info-bar">
-                    <div id="timer" class="timer">⏳ Temps : 30 s (UI)</div>
-                    <div id="current-score" class="score-display">Score : 0 (UI)</div>
+                    <div id="timer" class="timer">⏳ Temps : 30s</div>
+                    <div id="current-score" class="score-display">Score : 0</div>
                 </div>
 
-                <form method="POST" action="index.php">
-                    <input type="hidden" name="action" value="submit_quiz">
-                    <input type="hidden" name="level" value="<?php echo $currentLevel; ?>">
-                    <input type="hidden" name="username" value="<?php echo htmlspecialchars($_GET['username'] ?? 'Anonymous'); ?>">
+                <div class="progress-container">
+                    <div class="progress-bar"></div>
+                </div>
+                <p class="progress-text">Question 1 sur <?php echo count($questions); ?></p>
 
+                <div id="questions-container">
                     <?php $q_index = 1; foreach ($questions as $q): ?>
-                        <div class="question-block" style="margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+                        <div class="question-block" data-question-id="<?php echo $q['id']; ?>">
                             <h3><?php echo $q_index; ?>. <?php echo htmlspecialchars($q['texte_question']); ?></h3>
                             
                             <div class="btn-grid">
                                 <?php foreach ($q['reponses'] as $r): ?>
-                                    <label class="btn-answer-label">
-                                        <input type="radio" name="answers[<?php echo $q['id']; ?>]" value="<?php echo $r['id']; ?>" required>
+                                    <label class="btn-answer-label <?php echo ($q['type_question'] === 'boolean' ? 'btn-boolean' : ''); ?>">
+                                        <input type="radio" name="answers[<?php echo $q['id']; ?>]" value="<?php echo $r['id']; ?>" required style="display: none;">
                                         <?php echo htmlspecialchars($r['texte_reponse']); ?>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
                         </div>
                     <?php $q_index++; endforeach; ?>
+                </div>
 
-                    <button type="submit" class="cta-btn submit-btn">Terminer le Quiz et Voir le Résultat</button>
-                </form>
-
+                <!-- Le formulaire de soumission sera créé dynamiquement par JavaScript -->
             </div>
 
         <?php elseif ($currentLevel === 'results' && $quizComplete): ?>
             <div id="results-screen" class="screen active">
                 <h2>🎉 Quiz Terminé !</h2>
-                <p id="total-final-score-text">Score de <?php echo htmlspecialchars($username); ?>:</p>
+                <p id="total-final-score-text">Score de <?php echo htmlspecialchars($username); ?> :</p>
                 <div class="score-badge">
                     <span id="final-score"><?php echo $finalScore; ?></span> pts
                 </div>
                 <p id="result-message"><?php echo $resultsMessage; ?></p>
+                
+                <?php if ($finalScore >= 100): ?>
+                    <p style="font-size: 1.2rem; color: var(--success-dark); margin: 20px 0;">
+                        🏆 Excellent ! Vous êtes un expert !
+                    </p>
+                <?php elseif ($finalScore >= 50): ?>
+                    <p style="font-size: 1.2rem; color: var(--primary-color); margin: 20px 0;">
+                        👍 Très bien ! Continuez comme ça !
+                    </p>
+                <?php else: ?>
+                    <p style="font-size: 1.2rem; color: var(--text-light); margin: 20px 0;">
+                        💪 Bon début ! Réessayez pour améliorer votre score !
+                    </p>
+                <?php endif; ?>
+
                 <a href="index.php" class="cta-btn">Choisir un nouveau niveau</a>
-                <a href="?level=ranking" class="cta-btn">Voir le Classement</a>
+                <a href="?level=ranking" class="cta-btn" style="margin-top: 10px;">Voir le Classement</a>
             </div>
 
         <?php elseif ($currentLevel === 'ranking'): ?>
@@ -157,24 +163,40 @@ elseif ($currentLevel === 'ranking') {
                 <h2>🏆 Classement des Meilleurs Scores</h2>
                 <div id="ranking-list" class="rules-content">
                     <?php if (!empty($ranking)): ?>
-                        <table>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                             <thead>
-                                <tr><th>#</th><th>Nom</th><th>Score</th><th>Niveau</th><th>Date</th></tr>
+                                <tr>
+                                    <th style="padding: 12px; text-align: left; background: var(--secondary-color); color: var(--white);">#</th>
+                                    <th style="padding: 12px; text-align: left; background: var(--secondary-color); color: var(--white);">Nom</th>
+                                    <th style="padding: 12px; text-align: left; background: var(--secondary-color); color: var(--white);">Score</th>
+                                    <th style="padding: 12px; text-align: left; background: var(--secondary-color); color: var(--white);">Niveau</th>
+                                    <th style="padding: 12px; text-align: left; background: var(--secondary-color); color: var(--white);">Date</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($ranking as $index => $entry): ?>
-                                    <tr>
-                                        <td><?php echo $index + 1; ?></td>
-                                        <td><?php echo htmlspecialchars($entry['nom_utilisateur']); ?></td>
-                                        <td><strong><?php echo htmlspecialchars($entry['score_final']); ?></strong></td>
-                                        <td><?php echo htmlspecialchars(ucfirst($entry['niveau_quiz'])); ?></td>
-                                        <td><?php echo htmlspecialchars($entry['date_formattee']); ?></td>
+                                    <tr style="border-bottom: 1px solid #eee;">
+                                        <td style="padding: 12px;">
+                                            <?php if ($index === 0): ?>
+                                                🥇
+                                            <?php elseif ($index === 1): ?>
+                                                🥈
+                                            <?php elseif ($index === 2): ?>
+                                                🥉
+                                            <?php else: ?>
+                                                <?php echo $index + 1; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td style="padding: 12px;"><strong><?php echo htmlspecialchars($entry['nom_utilisateur']); ?></strong></td>
+                                        <td style="padding: 12px; color: var(--primary-color);"><strong><?php echo htmlspecialchars($entry['score_final']); ?> pts</strong></td>
+                                        <td style="padding: 12px;"><?php echo htmlspecialchars(ucfirst($entry['niveau_quiz'])); ?></td>
+                                        <td style="padding: 12px; font-size: 0.9rem; color: var(--text-light);"><?php echo htmlspecialchars($entry['date_formattee']); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                     <?php else: ?>
-                        <p>Aucun score n'est encore enregistré.</p>
+                        <p>Aucun score n'est encore enregistré. Soyez le premier à jouer !</p>
                     <?php endif; ?>
                 </div>
                 <a href="index.php" class="cta-btn">Retour à l'accueil</a>
@@ -183,6 +205,6 @@ elseif ($currentLevel === 'ranking') {
         <?php endif; ?>
     </div>
 
-    </body>
     <script src="script.js"></script>
+</body>
 </html>

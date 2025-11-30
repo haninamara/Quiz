@@ -1,7 +1,3 @@
-// Quiz Interactive JavaScript
-// =========================
-
-// Configuration
 const CONFIG = {
     questionTime: 30, // Temps par question en secondes
     basePoints: 10, // Points de base par bonne réponse
@@ -88,30 +84,32 @@ function startTimer() {
     state.timeRemaining = CONFIG.questionTime;
     updateTimerDisplay();
 
-    // Nettoyer l'ancien timer si existant
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+        timerElement.style.background = ''; 
+        timerElement.style.animation = '';  
+    }
+
     if (state.timer) {
         clearInterval(state.timer);
     }
 
-    // Créer un nouveau timer
     state.timer = setInterval(() => {
         state.timeRemaining--;
         updateTimerDisplay();
 
-        // Changer la couleur du timer quand il reste peu de temps
-        const timerElement = document.getElementById('timer');
         if (state.timeRemaining <= 10) {
             timerElement.style.background = 'linear-gradient(135deg, #ff7675, #d63031)';
             timerElement.style.animation = 'pulse 1s infinite';
         }
 
-        // Temps écoulé
         if (state.timeRemaining <= 0) {
             clearInterval(state.timer);
             handleTimeout();
         }
     }, 1000);
 }
+
 
 // Gérer le timeout
 function handleTimeout() {

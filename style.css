@@ -318,14 +318,22 @@ button {
 }
 
 .cta-btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: var(--white);
-    margin-top: 25px;
-    width: 100%;
-    box-shadow: 0 8px 25px rgba(253, 121, 168, 0.3);
-    text-decoration: none;
-    display: inline-block;
+    display: inline-block;      
+    width: 100%;                
+    padding: 16px 35px;        
+    border-radius: 15px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
     text-align: center;
+    text-decoration: none;       
+    color: var(--white);
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(253, 121, 168, 0.3);
+    transition: all 0.3s var(--transition-smooth);
+    margin: 10px 0;            
 }
 
 .cta-btn:hover:not(:disabled) {

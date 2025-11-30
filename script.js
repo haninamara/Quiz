@@ -114,6 +114,7 @@ function displayQuestion() {
     timeLeft = getInitialTime();
 
     if (currentQuestionIndex >= currentQuestions.length) {
+        // Cette vérification est cruciale pour éviter d'afficher une question inexistante
         showResults();
         return;
     }
@@ -133,9 +134,9 @@ function displayQuestion() {
     q.answers.forEach(a => {
         const btn = document.createElement('button');
         btn.classList.add("btn-answer");
+        // Retire la modification de style inline pour que le CSS gère la largeur de manière uniforme
         if (q.type === 'boolean') {
-            btn.classList.add('btn-boolean');
-            btn.style.width = 'calc(50% - 9px)'; 
+            btn.classList.add('btn-boolean'); 
         }
         btn.textContent = a;
         btn.onclick = () => checkAnswer(btn, q.correctAnswer);
@@ -145,9 +146,11 @@ function displayQuestion() {
 
 function updateProgressBar() {
     const total = currentQuestions.length;
+    // On utilise currentQuestionIndex + 1 pour l'affichage, sauf si le quiz est fini
+    const currentStep = currentQuestionIndex < total ? currentQuestionIndex + 1 : total; 
     const progress = (currentQuestionIndex / total) * 100;
     progressBar.style.width = progress + '%';
-    progressText.textContent = `Question ${currentQuestionIndex + 1} / ${total}`;
+    progressText.textContent = `Question ${currentStep} / ${total}`;
 }
 
 // --- Logique du Chronomètre et du Score ---
@@ -223,6 +226,13 @@ function checkAnswer(selectedButton, correctAnswer) {
 }
 
 function nextQuestion() {
+    // Vérifie si c'est la dernière question. Si oui, on passe directement aux résultats sans transition.
+    if (currentQuestionIndex === currentQuestions.length - 1) {
+        currentQuestionIndex++;
+        showResults();
+        return;
+    }
+
     quizScreen.classList.remove('active');
     setTimeout(() => {
         currentQuestionIndex++;
@@ -234,8 +244,11 @@ function nextQuestion() {
 // --- Logique du Résultat et de la Sauvegarde ---
 
 function showResults() {
-    quizScreen.classList.remove('active');
-    resultsScreen.classList.add('active');
+    // 1. Cacher l'écran du quiz
+    quizScreen.classList.remove('active'); 
+    // 2. Afficher l'écran des résultats
+    resultsScreen.classList.add('active'); 
+    
     finalScore.textContent = totalScore;
 
     const maxScorePerQuestion = BASE_POINTS + getInitialTime() * TIME_BONUS_PER_SECOND;
@@ -328,7 +341,7 @@ restartBtn.addEventListener('click', () => {
     // Screens
     resultsScreen.classList.remove('active');
     quizScreen.classList.remove('active');
-    rulesScreen.classList.remove('active'); // S'assurer que les règles sont masquées
+    rulesScreen.classList.remove('active'); 
     introScreen.classList.add('active');
     
     updateBestScoresOnHome(); 
